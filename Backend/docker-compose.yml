@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+
+  # Your Node.js Application
+  app:
+    build: .
+    # The port is now exposed through Nginx, not directly to the host
+    env_file:
+      - .env # Load environment variables from .env file
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+
+  # MongoDB Database
+  mongo:
+    image: mongo:5.0
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  # Redis Cache
+  redis:
+    image: redis:6-alpine
+    # DO NOT expose the redis port to the host machine in production
+    restart: unless-stopped
+
+# Define a volume to persist database data
+volumes:
+  mongo-data:

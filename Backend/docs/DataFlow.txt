@@ -1,0 +1,4 @@
+Data Flow
+
+User Registration → Login → Browse Turfs → Book Turf → Payment → Review
+Admin Registration → Login → Create Turfs → Manage Bookings → Analytics
