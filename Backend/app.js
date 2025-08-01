@@ -41,6 +41,13 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
 
+app.get("/",(req,res)=>{
+    res.send({
+      activeStatus:true,
+      error:false,
+    })
+})
+
 // --- 404 Handler for Unknown Routes ---
 app.use((req, res, next) => {
   res.status(404).json({ status: 'error', message: 'Route not found' });
