@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, MapPin } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/Common/LoadingSpinner';
+import { authAPI } from '../../services/api';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phoneNumber: '',
     isAdmin: false,
   });
@@ -16,7 +17,6 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,12 +29,27 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
     try {
-      await register(formData);
-      navigate('/');
+      // The register function in AuthContext likely expects a token for auto-login,
+      // which the backend doesn't provide on registration.
+      // We use the dedicated `authAPI.register` function.
+      const { confirmPassword, ...registrationData } = formData;
+      await authAPI.register(registrationData);
+      navigate('/login');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Registration failed');
     } finally {
@@ -136,6 +151,23 @@ const Register: React.FC = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Confirm your password"
+              />
             </div>
 
             <div className="flex items-center">
